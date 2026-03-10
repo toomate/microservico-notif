@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSE - Notificações</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status.conectado {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status.desconectado {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .client-info {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .notificacoes {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            height: 300px;
+            overflow-y: auto;
+            background: #fafafa;
+        }
+
+        .notificacao {
+            padding: 10px;
+            margin-bottom: 10px;
+            background: white;
+            border-left: 4px solid #667eea;
+            border-radius: 4px;
+        }
+
+        .notificacao .timestamp {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .notificacao .mensagem {
+            margin-top: 5px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔔 Notificações SSE</h1>
+
+        <div id="status" class="status desconectado">
+            <span>❌ Desconectado</span>
+            <span id="clientInfo" class="client-info"></span>
+        </div>
+
+        <h3>Notificações:</h3>
+        <div id="notificacoes" class="notificacoes">
+            <div style="color: #999; text-align: center; margin-top: 50px;">
+                Aguardando notificações...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let eventSource = null;
+        const statusDiv = document.getElementById('status');
+        const notificacoesDiv = document.getElementById('notificacoes');
+        const clientInfoDiv = document.getElementById('clientInfo');
+
+        // Gerar ou recuperar ID do cliente
+        function getOrCreateClientId() {
+            let clientId = localStorage.getItem('clientId');
+            if (!clientId) {
+                clientId = 'user-' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('clientId', clientId);
+            }
+            return clientId;
+        }
+
+        function conectar() {
+            const clientId = getOrCreateClientId();
+
+            try {
+                // Conectar ao servidor SSE
+                eventSource = new EventSource(`/sse/conectar?clientId=${clientId}`);
+
+                // Receber mensagens
+                eventSource.onmessage = function(event) {
+                    adicionarNotificacao(event.data);
+                };
+
+                // Erro de conexão
+                eventSource.onerror = function() {
+                    atualizarStatus(false);
+                    // Tentar reconectar em 5 segundos
+                    setTimeout(conectar, 5000);
+                };
+
+                // Sucesso
+                atualizarStatus(true, clientId);
+            } catch (error) {
+                console.error('Erro ao conectar:', error);
+                atualizarStatus(false);
+                setTimeout(conectar, 5000);
+            }
+        }
+
+        function atualizarStatus(conectado, clientId = null) {
+            if (conectado) {
+                statusDiv.textContent = '🟢 Conectado';
+                statusDiv.className = 'status conectado';
+                clientInfoDiv.textContent = `ID: ${clientId}`;
+            } else {
+                statusDiv.innerHTML = '<span>❌ Desconectado</span><span id="clientInfo" class="client-info">Reconectando...</span>';
+                statusDiv.className = 'status desconectado';
+            }
+        }
+
+        function adicionarNotificacao(mensagem) {
+            // Limpar mensagem padrão se for a primeira notificação
+            if (notificacoesDiv.children.length === 1 && notificacoesDiv.children[0].textContent.includes('Aguardando')) {
+                notificacoesDiv.innerHTML = '';
+            }
+
+            const agora = new Date();
+            const hora = agora.toLocaleTimeString('pt-BR');
+
+            const notifElement = document.createElement('div');
+            notifElement.className = 'notificacao';
+            notifElement.innerHTML = `
+                <div class="timestamp">🕐 ${hora}</div>
+                <div class="mensagem">${mensagem}</div>
+            `;
+
+            notificacoesDiv.insertBefore(notifElement, notificacoesDiv.firstChild);
+        }
+
+        // Conectar automaticamente ao carregar a página
+        window.addEventListener('load', conectar);
+
+        // Desconectar ao sair da página
+        window.addEventListener('beforeunload', function() {
+            if (eventSource) {
+                eventSource.close();
+            }
+        });
+    </script>
+</body>
+</html>
