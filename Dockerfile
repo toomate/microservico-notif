@@ -2,8 +2,9 @@ FROM maven:3.9.4-eclipse-temurin-21 AS build
 WORKDIR /workspace
 
 # Copy only the pom first to leverage Docker cache for dependencies
-COPY pom.xml ./
-COPY src ./src
+COPY microservico-notif/pom.xml ./
+COPY microservico-notif/compose.yaml ./
+COPY microservico-notif/src ./src
 
 # Build the application (skip tests for faster builds; remove -DskipTests for CI that runs tests)
 RUN mvn -B -DskipTests package
