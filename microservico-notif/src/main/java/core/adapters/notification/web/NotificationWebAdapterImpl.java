@@ -1,10 +1,12 @@
 package core.adapters.notification.web;
 
+import core.domain.notification.adapter.NotificacaoDeterminada;
 import infrastructure.web.SSE.SseService;
-import core.domain.shared.interfaces.Notificacao;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.converter.MessageConversionException;
 import org.springframework.stereotype.Component;
+import tools.jackson.databind.ObjectMapper;
 
 @Slf4j
 @Component
@@ -12,27 +14,25 @@ import org.springframework.stereotype.Component;
 public class NotificationWebAdapterImpl implements NotificationWebAdapter {
 
     private final SseService sseService;
+    private final ObjectMapper objectMapper;
 
     @Override
-    public void enviarMensagem(Notificacao notificacao) {
+    public void enviarMensagem(NotificacaoDeterminada notificacao) {
         try {
-            String mensagem = formatarMensagem(notificacao);
+            // Serializa a notificação determinada em JSON para o cliente SSE
+            String mensagemJson = objectMapper.writeValueAsString(notificacao);
 
-            log.info("Enviando notificação via SSE: {}", mensagem);
+            log.info("Enviando notificação via SSE: {}", mensagemJson);
 
-            sseService.enviarParaTodos(mensagem);
+            sseService.enviarParaTodos(mensagemJson);
 
-        } catch (Exception e) {
-            log.error("Erro ao enviar notificação via SSE", e);
-            throw new RuntimeException("Erro ao enviar notificação", e);
+        } catch (MessageConversionException e){
+            log.error("Erro ao tentar desserializar a mensagem: {}", e.getMessage());
+            throw new RuntimeException(e);
         }
-    }
-
-    private String formatarMensagem(Notificacao notificacao) {
-        return String.format(
-            "📢 Notificação: %s (Timestamp: %s)",
-            notificacao.toString(),
-            System.currentTimeMillis()
-        );
+        catch (Exception e) {
+            log.error("Erro ao enviar notificação via SSE: {}", e.getMessage());
+            throw new RuntimeException(e);
+        }
     }
 }

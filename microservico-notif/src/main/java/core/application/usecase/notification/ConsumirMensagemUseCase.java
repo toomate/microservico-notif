@@ -1,21 +1,27 @@
 package core.application.usecase.notification;
 
 import core.adapters.notification.web.NotificationWebAdapter;
-import core.domain.shared.interfaces.Notificacao;
+import core.domain.notification.NotificacaoAgnostico;
+import core.domain.notification.adapter.NotificacaoDeterminada;
+import core.domain.utility.NotificationResolver;
 
 public class ConsumirMensagemUseCase {
 
-    public ConsumirMensagemUseCase(NotificationWebAdapter notificationWebAdapter) {
+    private final NotificationWebAdapter notificationWebAdapter;
+    private final NotificationResolver notificationResolver;
+
+
+    public ConsumirMensagemUseCase(NotificationWebAdapter notificationWebAdapter, NotificationResolver notificationResolver) {
         this.notificationWebAdapter = notificationWebAdapter;
+        this.notificationResolver = notificationResolver;
     }
 
-    private final NotificationWebAdapter notificationWebAdapter;
 
-    public void consumirMensagem(Notificacao notificacao) {
+    public void consumirMensagem(NotificacaoAgnostico notificacao) {
 
-        notificacao.validar();
+        NotificacaoDeterminada notificacaoDeterminada = notificationResolver.resolve(notificacao);
 
-        notificationWebAdapter.enviarMensagem(notificacao);
+        notificationWebAdapter.enviarMensagem(notificacaoDeterminada);
     }
 
 }

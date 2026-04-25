@@ -1,9 +1,9 @@
 package core.adapters.notification.web;
 
-import core.domain.shared.interfaces.Notificacao;
+import core.domain.notification.adapter.NotificacaoDeterminada;
 
 public interface NotificationWebAdapter {
 
-    void enviarMensagem(Notificacao mensagem);
+    void enviarMensagem(NotificacaoDeterminada mensagem);
 
 }

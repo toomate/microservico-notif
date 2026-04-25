@@ -1,4 +1,4 @@
-package core.domain.shared.exception;
+package core.domain.exception;
 
 public class ArgumentoInvalidoException extends RuntimeException {
     public ArgumentoInvalidoException(String message) {

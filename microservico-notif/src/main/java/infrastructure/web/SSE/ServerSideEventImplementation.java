@@ -23,11 +23,4 @@ public class ServerSideEventImplementation {
         log.info("Cliente tentando conectar com ID: {}", id);
         return sseService.registrarCliente(id);
     }
-
-    @PostMapping("/enviar")
-    public ResponseEntity<String> enviarNotificacao(@RequestBody String mensagem) {
-        log.info("Enviando notificação para todos os clientes");
-        sseService.enviarParaTodos(mensagem);
-        return ResponseEntity.ok("Notificação enviada");
-    }
 }

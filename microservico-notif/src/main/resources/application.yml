@@ -1,0 +1,38 @@
+# Configurações da Aplicação Spring Boot (YAML)
+server:
+  port: 8181
+  servlet:
+    context-path: "/"
+    encoding:
+      charset: "UTF-8"
+      enabled: true
+      force: true
+  tomcat:
+    threads:
+      max: 200
+      min-spare: 10
+
+logging:
+  level:
+    root: "INFO"
+    core: "DEBUG"
+    infrastructure: "DEBUG"
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+
+spring:
+  main:
+    banner-mode: "off"
+  threads:
+    virtual:
+      enabled: true
+  jackson:
+    serialization:
+      indent-output: true
+    default-property-inclusion: "non_null"
+
+broker:
+  exchange:
+    name: example.fanout.exchange
+  queue:
+    name: example.queue

@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -13,6 +14,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class SseService {
 
     private final List<ClientConnection> clientes = new CopyOnWriteArrayList<>();
+    private final List<String> notificacoes = new ArrayList<>();
 
     public SseEmitter registrarCliente(String clientId) {
         SseEmitter emitter = new SseEmitter(300000L); // 5 minutos de timeout
@@ -32,10 +34,12 @@ public class SseService {
     public void enviarParaTodos(String mensagem) {
         List<ClientConnection> desconectados = new ArrayList<>();
 
+        notificacoes.add(mensagem);
+
         for (ClientConnection cliente : clientes) {
             try {
                 cliente.emitter.send(SseEmitter.event()
-                        .data(mensagem)
+                        .data(notificacoes)
                         .build());
                 log.debug("Mensagem enviada para {}", cliente.clientId);
             } catch (Exception e) {
@@ -45,6 +49,10 @@ public class SseService {
         }
 
         desconectados.forEach(c -> removerCliente(c.clientId));
+    }
+
+    public void consumirMensagem(Integer id) {
+        notificacoes.remove(id);
     }
 
     private static class ClientConnection {
