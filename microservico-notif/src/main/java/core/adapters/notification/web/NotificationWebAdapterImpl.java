@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.converter.MessageConversionException;
 import org.springframework.stereotype.Component;
-import tools.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Slf4j
 @Component
@@ -17,14 +17,11 @@ public class NotificationWebAdapterImpl implements NotificationWebAdapter {
     private final ObjectMapper objectMapper;
 
     @Override
-    public void enviarMensagem(NotificacaoDeterminada notificacao) {
+    public void enviarMensagem(String notificacao) {
         try {
-            // Serializa a notificação determinada em JSON para o cliente SSE
-            String mensagemJson = objectMapper.writeValueAsString(notificacao);
+            log.info("Enviando notificação via SSE: {}", notificacao);
 
-            log.info("Enviando notificação via SSE: {}", mensagemJson);
-
-            sseService.enviarParaTodos(mensagemJson);
+            sseService.enviarParaTodos(notificacao);
 
         } catch (MessageConversionException e){
             log.error("Erro ao tentar desserializar a mensagem: {}", e.getMessage());

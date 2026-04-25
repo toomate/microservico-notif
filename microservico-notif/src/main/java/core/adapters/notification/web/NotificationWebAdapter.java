@@ -4,6 +4,6 @@ import core.domain.notification.adapter.NotificacaoDeterminada;
 
 public interface NotificationWebAdapter {
 
-    void enviarMensagem(NotificacaoDeterminada mensagem);
+    void enviarMensagem(String mensagem);
 
 }

@@ -2,8 +2,10 @@ package core.domain.notification;
 
 import core.domain.notification.adapter.NotificacaoDeterminada;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
+@EqualsAndHashCode(callSuper=false)
 public class Estoque extends NotificacaoDeterminada {
     String nome;
     Integer quantidadeMinima;

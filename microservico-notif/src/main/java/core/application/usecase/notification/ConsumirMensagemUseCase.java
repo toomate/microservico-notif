@@ -17,11 +17,9 @@ public class ConsumirMensagemUseCase {
     }
 
 
-    public void consumirMensagem(NotificacaoAgnostico notificacao) {
+    public void consumirMensagem(String notificacao) {
 
-        NotificacaoDeterminada notificacaoDeterminada = notificationResolver.resolve(notificacao);
-
-        notificationWebAdapter.enviarMensagem(notificacaoDeterminada);
+        notificationWebAdapter.enviarMensagem(notificacao);
     }
 
 }

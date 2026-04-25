@@ -2,10 +2,12 @@ package core.domain.notification;
 
 import core.domain.notification.adapter.NotificacaoDeterminada;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 
 @Data
+@EqualsAndHashCode(callSuper=false)
 public class Boleto extends NotificacaoDeterminada {
     String nome;
     String descricao;
