@@ -3,7 +3,6 @@ WORKDIR /workspace
 
 # Copy only the pom first to leverage Docker cache for dependencies
 COPY microservico-notif/pom.xml ./
-COPY microservico-notif/compose.yaml ./
 COPY microservico-notif/src ./src
 
 # Build the application (skip tests for faster builds; remove -DskipTests for CI that runs tests)
