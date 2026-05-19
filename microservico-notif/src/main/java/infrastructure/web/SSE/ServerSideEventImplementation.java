@@ -17,10 +17,19 @@ public class ServerSideEventImplementation {
 
     private final SseService sseService;
 
-    @GetMapping(value = "/conectar", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter conectar(@RequestParam(required = false) String clientId) {
-        String id = clientId != null ? clientId : UUID.randomUUID().toString();
+    @CrossOrigin(origins = "*")
+    @GetMapping(value = "/conectar/{id}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter conectar(@PathVariable String id) {
         log.info("Cliente tentando conectar com ID: {}", id);
         return sseService.registrarCliente(id);
     }
+
+    @CrossOrigin(origins = "*")
+    @PostMapping(value = "/deletar/{idInsumo}")
+    public ResponseEntity<Void> deletar(@PathVariable String idInsumo){
+        log.info("Cliente tentando consumir a notificação com ID: {}", idInsumo);
+        sseService.consumirMensagem(idInsumo);
+        return ResponseEntity.status(201).build();
+    }
+
 }

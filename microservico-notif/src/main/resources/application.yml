@@ -1,6 +1,6 @@
 # Configurações da Aplicação Spring Boot (YAML)
 server:
-  port: 8182
+  port: 8181
   servlet:
     context-path: "/"
     encoding:
